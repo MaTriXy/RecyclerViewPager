@@ -1,7 +1,8 @@
 package com.lsjwzh.widget.recyclerviewpager;
 
 import android.support.v7.widget.RecyclerView;
-import android.view.ViewGroup;
+import android.support.v7.widget.ViewHolderDelegate;
+
 
 public class LoopRecyclerViewPagerAdapter<VH extends RecyclerView.ViewHolder>
         extends RecyclerViewPagerAdapter<VH> {
@@ -40,6 +41,9 @@ public class LoopRecyclerViewPagerAdapter<VH extends RecyclerView.ViewHolder>
     @Override
     public void onBindViewHolder(VH holder, int position) {
         super.onBindViewHolder(holder, getActualPosition(position));
+        // because of getCurrentPosition may return ViewHolder‘s position,
+        // so we must reset mPosition if exists.
+        ViewHolderDelegate.setPosition(holder, position);
     }
 
     public int getActualPosition(int position) {

@@ -5,12 +5,13 @@ A ViewPager implemention base on RecyclerView. Support fling operation like gall
 android.support.v4.view.ViewPager的完美替代品
 
 ## Features:
-1. Extends RecyclerView.
+1. Base on RecyclerView.
 2. Custom fling factor.
 3. Custom paging trigger.
 4. Support Vertical and Horizontal orientation.
 5. Support FragmentViewPager (api 12+)
-6. Infinite-Loop-ViewPager 
+6. Infinite-Loop-ViewPager
+7. Support TabLayout
 
 ## 特性:
 1. 扩展自RecyclerView.
@@ -19,7 +20,7 @@ android.support.v4.view.ViewPager的完美替代品
 4. 支持垂直ViewPager.
 5. 支持Fragment (api 12+)
 6. 支持无限循环
-
+7. 支持和TabLayout配合使用
 
 ![RecyclerViewPager](https://github.com/lsjwzh/RecyclerViewPager/blob/master/vertical.gif)
 ![RecyclerViewPager](https://github.com/lsjwzh/RecyclerViewPager/blob/master/horizontal.gif)
@@ -30,97 +31,112 @@ android.support.v4.view.ViewPager的完美替代品
 ### how to import?
 add this into gradle
 
-    compile('com.lsjwzh:recyclerviewpager:1.0.11-SNAPSHOT')
+```gradle
+// Yes, I have switched to jitpack.io.
 
-	!!!   SNAPSHOT version depend on snapshots rep
-    repositories { 		   
-        ...
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-        ...
-    }
-### xml:
+repositories {
+    ...
+    maven { url "https://jitpack.io" }
+    ...
+}
 
+dependencies {
+    ...
+    compile 'com.github.lsjwzh.RecyclerViewPager:lib:v1.1.2'
+    ...
+}
 ```
+add proguard rules if need
+
+	-keep class com.lsjwzh.widget.recyclerviewpager.**
+	-dontwarn com.lsjwzh.widget.recyclerviewpager.**
+
+
+### Basic Usage:
+
+It is easy to setup like a Recycler List View.
+
+#### xml:
+
+```xml
 <com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager
     android:id="@+id/list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="15dp"
     android:paddingRight="15dp"
-    app:triggerOffset="0.1"
-    app:singlePageFling="true"
+    app:rvp_triggerOffset="0.1"
+    app:rvp_singlePageFling="true"
     android:clipToPadding="false"/>
 ```
-
-### java api:
-```
+#### code:
+```java
 RecyclerViewPager mRecyclerView = (RecyclerViewPager) view.findViewById(R.id.list);
+
+// setLayoutManager like normal RecyclerView, you do not need to change any thing.
 LinearLayoutManager layout = new LinearLayoutManager(getActivity(),LinearLayoutManager.HORIZONTAL,false);
-mRecyclerView.setLayoutManager(layout);//setLayoutManager
+mRecyclerView.setLayoutManager(layout);
+
 //set adapter
-mRecyclerView.setAdapter(new LayoutAdapter(activity, mRecyclerView, mLayoutId));//you need to impelement LayoutAdapter by yourself like a ListAdapter.
+//You just need to impelement ViewPageAdapter by yourself like a normal RecyclerView.Adpater.
+mRecyclerView.setAdapter(new RecyclerView.Adpater<X>());
 
-//set scroll listener
-//this will show you how to implement a ViewPager like the demo gif
-
-mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerViewEx recyclerView, int scrollState) {
-                // do something
-            }
-
-            @Override
-            public void onScrolled(RecyclerViewEx recyclerView, int i, int i2) {
-                int childCount = mRecyclerView.getChildCount();
-                int width = mRecyclerView.getChildAt(0).getWidth();
-                int padding  = (mRecyclerView.getWidth() - width)/2;
-                mCountText.setText("Count: " + childCount);
-
-                for (int j = 0; j < childCount; j++) {
-                    View v = recyclerView.getChildAt(j);
-                    float rate = 0;
-                    if (v.getLeft() <= padding) {
-                        if (v.getLeft() >= padding - v.getWidth()) {
-                            rate = (padding - v.getLeft()) * 1f / v.getWidth();
-                        } else {
-                            rate = 1;
-                        }
-                        v.setScaleY(1 - rate * 0.1f);
-                    } else {
-                        if (v.getLeft() <= recyclerView.getWidth() - padding) {
-                            rate = (recyclerView.getWidth() - padding - v.getLeft()) * 1f / v.getWidth();
-                        }
-                        v.setScaleY(0.9f + rate * 0.1f);
-                    }
-                }
-            }
-        });
-        // registering addOnLayoutChangeListener  aim to setScale at first layout action
-        mRecyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                if(mRecyclerView.getChildCount()<3){
-                    if (mRecyclerView.getChildAt(1) != null) {
-                        View v1 = mRecyclerView.getChildAt(1);
-                        v1.setScaleY(0.9f);
-                    }
-                }else {
-                    if (mRecyclerView.getChildAt(0) != null) {
-                        View v0 = mRecyclerView.getChildAt(0);
-                        v0.setScaleY(0.9f);
-                    }
-                    if (mRecyclerView.getChildAt(2) != null) {
-                        View v2 = mRecyclerView.getChildAt(2);
-                        v2.setScaleY(0.9f);
-                    }
-                }
-
-            }
-        });
+// That is all.
 
 ```
+### Support TabLayout:
+
+#### 1.Add Dependency:
+```gradle
+dependencies {
+    ...
+    compile 'com.github.lsjwzh.RecyclerViewPager:tablayoutsupport:v1.1.2'
+    ...
+}
+```
+#### 2.Call 'setupWithViewPager'
+```java
+TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+TabLayoutSupport.setupWithViewPager(tabLayout, mRecyclerView, mAdapter);
+```
+### Infinite Loop ViewPager:
+```xml
+<com.lsjwzh.widget.recyclerviewpager.LoopRecyclerViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:clipToPadding="false"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"/>
+```
+You just need to use `LoopRecyclerViewPager` replace `RecyclerViewPager`.
+The usage of `LoopRecyclerViewPager` is the same as `RecyclerViewPager`.
+No matter what you specify position you want to scroll, `LoopRecyclerViewPager` will transform it
+ to right position.
+Ex:In a `LoopRecyclerViewPager` with 10 items, `scrollToPosition(1)` will get
+  same scroll behavior as `scrollToPosition(11)`、`scrollToPosition(21)` and so on.
+
+#### How to get actual position in LoopRecyclerViewPager:
+```
+    int actualPosition = mLoopRecyclerViewPager.transformToActualPosition(adapterPosition);
+```
+If you just want to get current actual position, you can do it like this:
+
+```
+    int actualCurrentPosition = mLoopRecyclerViewPager.getActualCurrentPosition();
+```
+
+
 ### Release Notes:
-	1.0.11 support infinite loop
+    1.1.2 merge some fix.
+    1.1.1 merge some fix.
+    1.1.0stable fix bug:LoopViewPager position confusion;LoopViewPager non stop spinning;
+    1.1.0beta5 feat: TabLayoutSupport Lib supports LoopViewPager
+    1.1.0beta4 fix bug:support ItemDecorations;
+    1.1.0beta3 support reverse;
+    1.1.0 refactor;support TabLayout;
+    1.0.11 support infinite loop
     1.0.10 make touch gesture smother；
     1.0.8 override swapAdapter；support singlePageFling；
     1.0.7 remove redandunt codes; support cancel action
@@ -133,19 +149,21 @@ mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
 
     0.5.4 add 'HorizontalCenterLayoutManager' to implement ViewPager
     0.5.3 fix bug: setHasStableIds not work
-	0.1.0
+    0.1.0
 
 ### Special Thanks:
 [saadfarooq](https://github.com/saadfarooq)
 [taxomania](https://github.com/taxomania)
 
 ### ToDo:
-~~Vertical ViewPager~~    
-~~FragmentViewPager~~	
-~~observe OnPageChanged~~	
-~~Infinite-Loop-ViewPager~~		
-Support ViewPagerIndicator	
-Wrap Content？	
+~~Vertical ViewPager~~
+~~FragmentViewPager~~
+~~observe OnPageChanged~~
+~~Infinite-Loop-ViewPager~~
+~~Support TabLayout	~~
+Support ViewPagerIndicator
+Wrap Content？
+dispatchTouchEvent override demo
 
 License
 -------

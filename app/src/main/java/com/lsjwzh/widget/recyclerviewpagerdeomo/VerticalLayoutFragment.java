@@ -17,7 +17,6 @@
 package com.lsjwzh.widget.recyclerviewpagerdeomo;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,11 +37,6 @@ public class VerticalLayoutFragment extends Fragment {
     private TextView mStateText;
     private Toast mToast;
 
-    public static int dip2px(Context context, float dpValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +45,7 @@ public class VerticalLayoutFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.layout_vertical, container, false);
+        return inflater.inflate(R.layout.demo_vertical_viewpager, container, false);
     }
 
     @Override
@@ -63,7 +57,7 @@ public class VerticalLayoutFragment extends Fragment {
         mToast = Toast.makeText(activity, "", Toast.LENGTH_SHORT);
         mToast.setGravity(Gravity.CENTER, 0, 0);
 
-        mRecyclerView = (RecyclerViewPager) view.findViewById(R.id.list);
+        mRecyclerView = (RecyclerViewPager) view.findViewById(R.id.viewpager);
 
         LinearLayoutManager layout = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
         mRecyclerView.setTriggerOffset(0.15f);
@@ -87,7 +81,7 @@ public class VerticalLayoutFragment extends Fragment {
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int i, int i2) {
-//                mPositionText.setText("First: " + mRecyclerView.getFirstVisiblePosition());
+//                mPositionText.setText("First: " + mRecyclerViewPager.getFirstVisiblePosition());
                 int childCount = mRecyclerView.getChildCount();
                 int width = mRecyclerView.getChildAt(0).getWidth();
                 int padding = (mRecyclerView.getWidth() - width) / 2;
